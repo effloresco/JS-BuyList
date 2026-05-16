@@ -1,17 +1,352 @@
-.product-item {
-	background-color: gray;
-	display: inline-block;
-	height: 25px;
-	padding: 5px;
-	border-radius: 5px;
+:root {
+    --purple: #4b0082;
+    --light-purple: #6a0dad;
+    --blue: #2d89ef;
+    --red: #db4437;
+    --green: #0f9d58;
+    --bg-grey: #e5e5e5;
+    --white: #ffffff;
+    --shadow: 0px -2.7px 0px 1px rgba(0, 0, 0, 0.15) inset;
 }
 
-.amount {
-	background-color: yellow;
-	border-radius: 10px;
-	
-	display: inline-block;
-	height: 20px;
-	width: 20px;
-	text-align: center;
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background-color: var(--bg-grey);
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+.main-container {
+    display: flex;
+    max-width: 1000px;
+    margin: 0 auto;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+@media (max-width: 650px) {
+    .main-container {
+        flex-direction: column;
+    }
+
+    .buy-panel,
+    .stats-panel {
+        width: 100%;
+    }
+}
+
+.card {
+    background: var(--white);
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    padding: 15px;
+}
+
+.buy-panel {
+    flex: 3;
+}
+
+.stats-panel {
+    flex: 1;
+}
+
+.input-group {
+    display: flex;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.input-group input {
+    flex: 1;
+    border: none;
+    padding: 12px 15px;
+    font-size: 16px;
+    outline: none;
+}
+
+.input-group input::placeholder {
+    color: #aaa;
+}
+
+.btn-add {
+    background-color: #2a8ccd;
+    color: white;
+    border: none;
+    padding: 0 30px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+}
+
+.btn-add:hover {
+    background-color: #277baf;
+}
+
+.input-group:focus-within {
+    border-color: #2795dd;
+    box-shadow: 0 0 0 2px rgba(39, 149, 221, 0.2);
+}
+
+.product-row {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    gap: 15px;
+}
+
+.product-name {
+    flex: 2;
+    min-width: 0;
+    font-size: 18px;
+    text-align: left;
+    margin: 0;
+    border: none;
+    box-sizing: border-box;
+}
+
+.edit-input {
+    flex: 2;
+    min-width: 0;
+    font-size: 18px;
+    text-align: left;
+    margin: 0;
+    border: none;
+    box-sizing: border-box;
+
+    border: 1px solid #2d89ef;
+    border-radius: 4px;
+    padding: 5px 10px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.is-bought .product-name {
+    text-decoration: line-through;
+    color: #888;
+}
+
+.count-label {
+    display: inline-block;
+    background: #eee;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+    min-width: 20px;
+}
+
+.btn-round {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    color: white;
+    box-shadow: var(--shadow);
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.controls{
+    display: flex;
+    flex: 0 0 120px;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 120px;
+}
+
+.actions {
+    display: flex;
+    flex: 2;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.btn-plus {
+    background: var(--green);
+}
+
+.btn-minus {
+    background: var(--red);
+}
+
+.btn-minus.disabled {
+    background: #f5a5a5;
+    cursor: not-allowed;
+}
+
+.btn-status {
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+}
+
+.btn-remove {
+    background: var(--red);
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+}
+
+.badge {
+    position: fixed;
+    bottom: 0;
+    left: 40px;
+    background-color: var(--purple);
+    color: var(--white);
+    padding: 10px 25px;
+    border-radius: 10px 10px 0 0;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 30px;
+    overflow: hidden;
+    cursor: default;
+    z-index: 1000;
+}
+
+.badge-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.badge-author-text {
+    opacity: 0;
+    font-size: 14px;
+    transition: opacity 0.4s;
+}
+
+.badge:hover {
+    height: 70px;
+    background-color: var(--light-purple);
+}
+
+.badge:hover .badge-author-text {
+    opacity: 1;
+}
+
+@media print {
+    .badge {
+        position: absolute;
+        background-color: white;
+        color: black;
+        border: 2px solid var(--purple);
+        height: auto;
+        padding: 5px;
+    }
+
+    .badge-main-text {
+        display: none;
+    }
+
+    .badge-author-text {
+        opacity: 1;
+        display: block;
+    }
+
+    .btn-add,
+    .btn-round,
+    .btn-remove,
+    .input-group {
+        display: none;
+    }
+}
+
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px) scale(0);
+    background: var(--purple);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    margin-bottom: 10px;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+}
+
+.stats-panel {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.stats-title {
+    margin: 0;
+    padding: 15px 20px;
+    font-size: 24px;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+}
+
+.stats-content {
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.stats-group:not(:last-child) {
+    border-bottom: 1px solid #eee;
+}
+
+.tag {
+    background-color: #efefef;
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #555;
+}
+
+.tag.bought {
+    text-decoration: line-through;
+}
+
+.tag-count {
+    background-color: #f39c12;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
