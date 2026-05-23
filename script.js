@@ -1,20 +1,58 @@
 let products = [
-    { id: 1, name: 'Помідори', count: 2, isBought: true },
-    { id: 2, name: 'Печиво', count: 2, isBought: false },
-    { id: 3, name: 'Сир', count: 1, isBought: false }
+    { id: 1, name: 'Помідори', count: 2, isBought: true, isEditing: false },
+    { id: 2, name: 'Печиво', count: 2, isBought: false, isEditing: false },
+    { id: 3, name: 'Сир', count: 1, isBought: false, isEditing: false }
 ];
 
 const productListUI = document.querySelector('.product-list');
 const inputField = document.querySelector('.input-group input');
 const addButton = document.querySelector('.btn-add');
+const statsLeftUI = document.querySelector('.stats-group:first-child .stats-content');
+const statsBoughtUI = document.querySelector('.stats-group:last-child .stats-content');
+
+function closeAllEditing() {
+    let needsRender = false;
+    products.forEach(p => {
+        if (p.isEditing) {
+            const input = document.querySelector('.edit-input');
+            if (input) {
+                p.name = input.value.trim() || p.name;
+            }
+            p.isEditing = false;
+            needsRender = true;
+        }
+    });
+    if (needsRender) render();
+}
+
+document.addEventListener('mousedown', (e) => {
+    if (!e.target.closest('.edit-input') && !e.target.closest('.product-name')) {
+        closeAllEditing();
+    }
+});
+
+function updateStatsUI(product) {
+    const tag = document.createElement('span');
+    tag.className = `tag ${product.isBought ? 'bought' : ''}`;
+    tag.innerHTML = `${product.name} <span class="tag-count">${product.count}</span>`;
+    if (product.isBought) statsBoughtUI.appendChild(tag);
+    else statsLeftUI.appendChild(tag);
+}
 
 function render() {
     productListUI.innerHTML = '';
+    statsLeftUI.innerHTML = '';
+    statsBoughtUI.innerHTML = '';
+
     products.forEach(product => {
         const li = document.createElement('li');
         li.className = `product-row ${product.isBought ? 'is-bought' : ''}`;
+
         li.innerHTML = `
-            <span class="product-name">${product.name}</span>
+            ${product.isEditing
+                ? `<input type="text" class="edit-input" value="${product.name}">`
+                : `<span class="product-name">${product.name}</span>`
+            }
             <div class="controls">
                 ${!product.isBought ? `
                     <button class="btn-round btn-minus ${product.count === 1 ? 'disabled' : ''}"
@@ -29,22 +67,73 @@ function render() {
             </div>
         `;
 
+        if (product.isEditing) {
+            const inputEdit = li.querySelector('.edit-input');
+
+            setTimeout(() => {
+                if (document.activeElement !== inputEdit && product.isEditing) {
+                    inputEdit.focus();
+                }
+            }, 0);
+
+            const saveAndClose = () => {
+                if (!product.isEditing) return;
+                product.name = inputEdit.value.trim() || product.name;
+                product.isEditing = false;
+                render();
+            };
+
+            inputEdit.onkeydown = (e) => {
+                if (e.key === 'Enter') saveAndClose();
+                if (e.key === 'Escape') {
+                    product.isEditing = false;
+                    render();
+                }
+            };
+
+            inputEdit.onblur = () => {
+                saveAndClose();
+            };
+        } else {
+            const nameSpan = li.querySelector('.product-name');
+            if (nameSpan && !product.isBought) {
+                nameSpan.setAttribute('tabindex', '0');
+
+                const startEditing = (e) => {
+                    e.stopPropagation();
+                    products.forEach(p => p.isEditing = false);
+                    product.isEditing = true;
+                    render();
+                };
+
+                nameSpan.onclick = startEditing;
+
+                nameSpan.onkeydown = (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        startEditing(e);
+                    }
+                };
+            }
+        }
+
         const plusBtn = li.querySelector('.btn-plus');
-        const minusBtn = li.querySelector('.btn-minus');
         if (plusBtn) plusBtn.onclick = () => {
-            product.count++;
+            closeAllEditing(); product.count++;
             render();
         };
 
+        const minusBtn = li.querySelector('.btn-minus');
         if (minusBtn) minusBtn.onclick = () => {
+            closeAllEditing();
             if (product.count > 1) {
-                product.count--;
-                render();
+                product.count--; render();
             }
         };
 
         li.querySelector('.btn-status').onclick = () => {
             product.isBought = !product.isBought;
+            product.isEditing = false;
             render();
         };
 
@@ -55,14 +144,17 @@ function render() {
                 render();
             };
         }
+
         productListUI.appendChild(li);
+        updateStatsUI(product);
     });
 }
 
 function addNewProduct() {
     const name = inputField.value.trim();
     if (name) {
-        products.push({ id: Date.now(), name, count: 1, isBought: false });
+        closeAllEditing();
+        products.push({ id: Date.now(), name, count: 1, isBought: false, isEditing: false });
         inputField.value = '';
         inputField.focus();
         render();
@@ -70,6 +162,8 @@ function addNewProduct() {
 }
 
 addButton.onclick = addNewProduct;
-inputField.onkeydown = (e) => { if (e.key === 'Enter') addNewProduct(); };
+inputField.onkeydown = (e) => {
+    if (e.key === 'Enter') addNewProduct();
+};
 
 render();
