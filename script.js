@@ -1,8 +1,14 @@
-let products = [
-    { id: 1, name: 'Помідори', count: 2, isBought: true, isEditing: false },
-    { id: 2, name: 'Печиво', count: 2, isBought: false, isEditing: false },
-    { id: 3, name: 'Сир', count: 1, isBought: false, isEditing: false }
-];
+let products = [];
+const savedData = localStorage.getItem('buyList');
+if (savedData) {
+    products = JSON.parse(savedData);
+} else {
+    products = [
+        { id: 1, name: 'Помідори', count: 2, isBought: true },
+        { id: 2, name: 'Печиво', count: 2, isBought: false },
+        { id: 3, name: 'Сир', count: 1, isBought: false }
+    ];
+}
 
 const productListUI = document.querySelector('.product-list');
 const inputField = document.querySelector('.input-group input');
@@ -148,6 +154,8 @@ function render() {
         productListUI.appendChild(li);
         updateStatsUI(product);
     });
+
+    saveData();
 }
 
 function addNewProduct() {
@@ -165,5 +173,9 @@ addButton.onclick = addNewProduct;
 inputField.onkeydown = (e) => {
     if (e.key === 'Enter') addNewProduct();
 };
+
+function saveData() {
+    localStorage.setItem('buyList', JSON.stringify(products));
+}
 
 render();
